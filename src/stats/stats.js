@@ -8,10 +8,13 @@ import "daterangepicker/daterangepicker.css";
 import "./stats.css";
 
 import Timeline from "../utils/timeline";
+
+
 import {
   getDateLabel,
   getDateRangeStringArray,
-  getZeroArray
+  getZeroArray,
+  getMillisecondsToTimeText
 } from "../utils/utils";
 import { DATE_UNIT, TIMER_TYPE } from "../utils/constants";
 
@@ -19,6 +22,7 @@ export default class Stats {
   constructor() {
     // Get DOM Elements
     this.tomatoesCount = document.getElementById("tomatoes-count");
+    this.tomatoesTime = document.getElementById("tomatoes-time");
     this.shortBreaksCount = document.getElementById("short-breaks-count");
     this.longBreaksCount = document.getElementById("long-breaks-count");
     this.resetStatsButton = document.getElementById("reset-stats-button");
@@ -85,6 +89,11 @@ export default class Stats {
   }
 
   setStatsText(stats) {
+    console.log("Printing stats");
+    console.log(stats);
+    var time_data = getMillisecondsToTimeText()
+
+    this.tomatoesTime.textContent = stats.tomatoesTime / 1000 / 60 / 60;
     this.tomatoesCount.textContent = stats.tomatoes;
     this.shortBreaksCount.textContent = stats.shortBreaks;
     this.longBreaksCount.textContent = stats.longBreaks;
@@ -119,7 +128,8 @@ export default class Stats {
     const stats = {
       tomatoes: 0,
       shortBreaks: 0,
-      longBreaks: 0
+      longBreaks: 0,
+      tomatoesTime: 0
     };
 
     // Go through timeline
@@ -127,6 +137,7 @@ export default class Stats {
       switch (timelineAlarm.type) {
         case TIMER_TYPE.TOMATO:
           stats.tomatoes++;
+          stats.tomatoesTime += timelineAlarm.timeout;
           this.addTomatoDateToChartData(
             completedTomatoesChartData,
             timelineAlarm.date,
@@ -143,7 +154,7 @@ export default class Stats {
           break;
       }
     }
-
+    console.log(stats.tomatoesTime)
     this.setStatsText(stats);
 
     // Setup 'Completed Tomatoes' Line Chart
